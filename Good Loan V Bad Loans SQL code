@@ -1,0 +1,242 @@
+SELECT * FROM Bank_Loan_Data ; 
+
+----------------------------------------------------------------------------------------------------------
+-- 1st Requirement : Total Loan Applications ? 
+
+SELECT COUNT(Id) As Total_Loan_Applicaitons 
+FROM Bank_Loan_Data ; 
+
+----------------------------------------------------------------------------------------------------------
+-- MTD Loan Applications 
+
+SELECT COUNT(Id) As MTD_Total_Applicaitons 
+FROM Bank_Loan_Data 
+WHERE MONTH(issue_date) = 12 --AND YEAR(issue_date) = 2021 ;  -- gives total number of loans issued in the month of Dec 2021 
+
+SELECT COUNT(Id) As MTD_Total_Applicaitons 
+FROM Bank_Loan_Data 
+WHERE MONTH(issue_date) = 11 --AND YEAR(issue_date) = 2021 ; -- gives total number of loans issued in the month of Nov 2021 
+
+----------------------------------------------------------------------------------------------------------
+-- Total Funded amount ? 
+
+SELECT SUM(loan_amount) As Total_Funded_Amount 
+FROM Bank_Loan_Data ; -- total amount
+
+SELECT SUM(loan_amount) As MTD_Total_Funded_Amount 
+FROM Bank_Loan_Data 
+WHERE MONTH(issue_date) = 12 and YEAR(issue_date) = 2021  -- in dec 2021
+
+SELECT SUM(loan_amount) As PMTD_Total_Funded_Amount 
+FROM Bank_Loan_Data 
+WHERE MONTH(issue_date) = 11 and YEAR(issue_date) = 2021  -- in NOV 2021
+
+----------------------------------------------------------------------------------------------------------
+-- Total received amount ? 
+
+SELECT SUM(total_payment) As Total_Amount_Received
+FROM Bank_Loan_Data ;  -- total amount
+
+SELECT SUM(total_payment) As MTD_Total_Amount_Received
+FROM Bank_Loan_Data 
+WHERE MONTH(issue_date) = 12 and YEAR(issue_date) = 2021  -- in dec 2021
+
+SELECT SUM(total_payment) As PMTD_Total_Amount_Received
+FROM Bank_Loan_Data 
+WHERE MONTH(issue_date) = 11 and YEAR(issue_date) = 2021  -- in NOV 2021
+
+----------------------------------------------------------------------------------------------------------
+-- Average Interest Rate ? 
+
+SELECT round(AVG(int_rate),4)*100 As Average_Int_Rate
+FROM Bank_Loan_Data ;  -- total avg int rate 
+
+SELECT round(AVG(int_rate),4)*100 As MTD_Average_Int_Rate
+FROM Bank_Loan_Data 
+WHERE MONTH(issue_date) = 12 ;  --  avg int rate in Dec 2021
+
+SELECT ROUND(AVG(int_rate),4)*100 As PMTD_Average_Int_Rate
+FROM Bank_Loan_Data 
+WHERE MONTH(issue_date) = 11 ;  --  avg int rate in NOV 2021
+
+ ----------------------------------------------------------------------------------------------------------
+ -- Average Debt to income (DTI)? 
+
+ SELECT Round(AVG(dti)*100, 2) AS Average_DTI  
+ FROM Bank_Loan_Data ; -- total Avg DTI
+
+ SELECT Round(AVG(dti)*100, 2) AS MTD_Average_DTI  
+ FROM Bank_Loan_Data 
+ WHERE MONTH(issue_date) = 12 and YEAR(issue_date) = 2021  -- avg int rate in Dec 2021
+
+ SELECT Round(AVG(dti)*100, 2) AS PMTD_Average_DTI  
+ FROM Bank_Loan_Data 
+ WHERE MONTH(issue_date) = 11 and YEAR(issue_date) = 2021  -- avg int rate in NOV 2021
+
+ ----------------------------------------------------------------------------------------------------------
+-- GOOD LOAN ISSUED 
+-- 1. Good Loan Percentage
+
+SELECT 
+	(COUNT(CASE WHEN loan_status = 'Fully Paid' OR loan_status = 'Current' THEN id  END)*100)
+	/
+	COUNT(id) AS Good_loan_Percentage
+FROM bank_loan_data ;  --percentage of the good loans issued, (number of good loan / number of total loans * 100 )
+
+
+--Good laon applications number ? 
+
+SELECT 
+	COUNT(CASE WHEN loan_status = 'Fully Paid' OR loan_status = 'Current' THEN id  END) as Good_loan_Applications 
+FROM bank_loan_data ;  --number of good loans issued 
+
+--one more method 
+
+SELECT COUNT(id) as Good_Loan_Applciaitons 
+FROM bank_loan_data 
+WHERE loan_status = 'Fully Paid' or loan_status = 'Current' ;  -- by applying where clause
+
+--Good Loan Fuded amount ? 
+
+SELECT Sum(loan_amount) as Good_Loan_Applciaitons 
+FROM bank_loan_data 
+WHERE loan_status = 'Fully Paid' or loan_status = 'Current' ; 
+
+--Good Loan Amount Received ? 
+
+SELECT Sum(total_payment) as Good_Loan_Applciaitons 
+FROM bank_loan_data 
+WHERE loan_status = 'Fully Paid' or loan_status = 'Current' ; 
+
+ ----------------------------------------------------------------------------------------------------------
+ --BAD LOAN percentage ? 
+
+ SELECT 
+	COUNT(CASE WHEN loan_status = 'Charged Off' THEN id  END)*100
+	/
+	COUNT(id) AS Bad_loan_Percentage
+FROM bank_loan_data ;  --percentage of the good loans issued, (number of good loan / number of total loans * 100 )
+
+
+--Bad loan applications number ? 
+
+SELECT 
+	COUNT(CASE WHEN loan_status = 'Charged Off' THEN id  END) as Bad_loan_Applications 
+FROM bank_loan_data ;  --number of Bad loans issued 
+
+--one more method 
+
+SELECT COUNT(id) as Bad_Loan_Applciaitons 
+FROM bank_loan_data 
+WHERE loan_status = 'Charged Off' ;  -- by applying where clause
+
+--Bad Loan Fuded amount ? 
+
+SELECT Sum(loan_amount) as Bad_Loan_Applciaitons 
+FROM bank_loan_data 
+WHERE loan_status = 'Charged Off' ; 
+
+--Bad Loan Amount Received ? 
+
+SELECT Sum(total_payment) as Bad_Loan_Applciaitons 
+FROM bank_loan_data 
+WHERE loan_status = 'Charged Off' ; 
+
+----------------------------------------------------------------------------------------------------------
+--LOAN STATUS (ongoing or closed)
+
+SELECT
+        loan_status,
+        COUNT(id) AS Total_Loan_Applications,
+        SUM(total_payment) AS Total_Amount_Received,
+        SUM(loan_amount) AS Total_Funded_Amount,
+        Round(AVG(int_rate * 100), 2) AS Interest_Rate,
+        Round(AVG(dti * 100), 2) AS DTI
+    FROM
+        bank_loan_data
+    GROUP BY
+        loan_status 
+
+-- --LOAN STATUS for last month MTD (ongoing or closed)
+SELECT 
+	loan_status, 
+	SUM(total_payment) AS MTD_Total_Amount_Received, 
+	SUM(loan_amount) AS MTD_Total_Funded_Amount 
+FROM bank_loan_data
+WHERE MONTH(issue_date) = 12 
+GROUP BY loan_status
+
+ ----------------------------------------------------------------------------------------------------------
+SELECT * FROM Bank_Loan_Data ; 
+
+--  Monthly Trend by issue date of the loan
+
+SELECT 
+	MONTH(issue_date) AS Month_Number, 
+	DATENAME(MONTH, issue_date) AS Month_name, 
+	COUNT(id) AS Total_Loan_Applications,
+	SUM(loan_amount) AS Total_Funded_Amount,
+	SUM(total_payment) AS Total_Amount_Received
+FROM bank_loan_data
+GROUP BY MONTH(issue_date), DATENAME(MONTH, issue_date)
+ORDER BY MONTH(issue_date)
+
+----------------------------------------------------------------------------------------------------------
+-- Regional analysis by STATE
+SELECT 
+	address_state AS State, 
+	COUNT(id) AS Total_Loan_Applications,
+	SUM(loan_amount) AS Total_Funded_Amount,
+	SUM(total_payment) AS Total_Amount_Received
+FROM bank_loan_data
+GROUP BY address_state
+ORDER BY Total_Loan_Applications Desc
+
+----------------------------------------------------------------------------------------------------------
+-- term (Loan duration in months) 
+SELECT 
+	term AS Term, 
+	COUNT(id) AS Total_Loan_Applications,
+	SUM(loan_amount) AS Total_Funded_Amount,
+	SUM(total_payment) AS Total_Amount_Received
+FROM bank_loan_data
+GROUP BY term
+ORDER BY term
+
+----------------------------------------------------------------------------------------------------------
+-- length of the employment in  years. 
+
+SELECT 
+	emp_length AS Employee_Length, 
+	COUNT(id) AS Total_Loan_Applications,
+	SUM(loan_amount) AS Total_Funded_Amount,
+	SUM(total_payment) AS Total_Amount_Received
+FROM bank_loan_data
+GROUP BY emp_length
+ORDER BY emp_length
+
+----------------------------------------------------------------------------------------------------------
+-- Loan purpose breakdown of the application
+
+SELECT 
+	purpose AS Loan_Purpose, 
+	COUNT(id) AS Total_Loan_Applications,
+	SUM(loan_amount) AS Total_Funded_Amount,
+	SUM(total_payment) AS Total_Amount_Received
+FROM bank_loan_data
+GROUP BY purpose
+ORDER BY Total_Loan_Applications Desc
+
+----------------------------------------------------------------------------------------------------------
+-- Home Ownership status of the applicant ? 
+
+SELECT 
+	home_ownership AS Home_Ownership, 
+	COUNT(id) AS Total_Loan_Applications,
+	SUM(loan_amount) AS Total_Funded_Amount,
+	SUM(total_payment) AS Total_Amount_Received
+FROM bank_loan_data
+GROUP BY home_ownership
+ORDER BY home_ownership
+
+----------------------------------------------------------------------------------------------------------
